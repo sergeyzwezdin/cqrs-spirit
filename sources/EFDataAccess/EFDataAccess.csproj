@@ -62,12 +62,6 @@
     <Compile Include="Queries\UserByEmailQuery.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DataModel\DataModel.csproj">
-      <Project>{dcea425c-0246-44f7-9af3-e069d75f1df6}</Project>
-      <Name>DataModel</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
