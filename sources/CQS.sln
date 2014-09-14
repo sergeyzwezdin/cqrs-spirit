@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQSNET", "CQSNET\CQSNET.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQSNET.Tests", "CQSNET.Tests\CQSNET.Tests.csproj", "{C118E77A-884F-4710-ABCD-2191AB1915A2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQSNET.EntityFramework", "CQSNET.EntityFramework\CQSNET.EntityFramework.csproj", "{C70C2B2B-D5DE-4FA4-AF6D-2229F293CFD6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C118E77A-884F-4710-ABCD-2191AB1915A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C118E77A-884F-4710-ABCD-2191AB1915A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C118E77A-884F-4710-ABCD-2191AB1915A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C70C2B2B-D5DE-4FA4-AF6D-2229F293CFD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C70C2B2B-D5DE-4FA4-AF6D-2229F293CFD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C70C2B2B-D5DE-4FA4-AF6D-2229F293CFD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C70C2B2B-D5DE-4FA4-AF6D-2229F293CFD6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
