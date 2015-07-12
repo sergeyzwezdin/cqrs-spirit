@@ -6,8 +6,16 @@ using System.Reflection;
 
 namespace CQSNET.Setup
 {
+    /// <summary>
+    /// Helper class to work with types
+    /// </summary>
     public static class TypesExtensions
     {
+        /// <summary>
+        /// Returns asseblies by names
+        /// </summary>
+        /// <param name="assembliesNames">Names of assemblies</param>
+        /// <returns>Assemblies definition list</returns>
         public static Assembly[] GetAssemblies(this IEnumerable<string> assembliesNames)
         {
             Assembly[] assemblies = assembliesNames
@@ -17,6 +25,12 @@ namespace CQSNET.Setup
             return assemblies;
         }
 
+        /// <summary>
+        /// Return object implementation by interface definition
+        /// </summary>
+        /// <typeparam name="TInterface">Interface type</typeparam>
+        /// <param name="assemblies">Assemblies list to search</param>
+        /// <returns>Dictionary of interface-implementation items</returns>
         public static IDictionary<Type, Type> GetIntefaceImplementations<TInterface>(this IEnumerable<Assembly> assemblies)
             where TInterface : class
         {
@@ -44,6 +58,12 @@ namespace CQSNET.Setup
             return result;
         }
 
+        /// <summary>
+        /// Return object implementation by interface definition
+        /// </summary>
+        /// <param name="assemblies">Assemblies list to search</param>
+        /// <param name="interfaceType">Interface type</param>
+        /// <returns>Types</returns>
         public static IEnumerable<Type> GetGenericIntefaceImplementations(this IEnumerable<Assembly> assemblies, Type interfaceType)
         {
             if (assemblies == null)
@@ -60,6 +80,13 @@ namespace CQSNET.Setup
             return result;
         }
 
+        /// <summary>
+        /// Return object implementation by interface definition
+        /// </summary>
+        /// <typeparam name="TInterface">Interface type</typeparam>
+        /// <param name="assemblies">Assemblies list to search</param>
+        /// <param name="wrappingType">Wrapping type</param>
+        /// <returns>Dictionary of types</returns>
         public static IDictionary<Type, Type[]> GetIntefaceImplementationsWithWrapper<TInterface>(
             this IEnumerable<Assembly> assemblies, Type wrappingType)
             where TInterface : class
@@ -92,7 +119,12 @@ namespace CQSNET.Setup
             return result;
         }
 
-
+        /// <summary>
+        /// Extracts description from [Description] attribute of member
+        /// </summary>
+        /// <param name="reason">Initial object</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <returns>Content of [Description] attribute</returns>
         public static string ExtractDecription(this object reason, string defaultValue)
         {
             string result = defaultValue;
@@ -113,6 +145,12 @@ namespace CQSNET.Setup
             return result;
         }
 
+        /// <summary>
+        /// Trying to parse enum value
+        /// </summary>
+        /// <typeparam name="T">Enum type</typeparam>
+        /// <param name="source">Text representation of enum member</param>
+        /// <returns>Enum member</returns>
         public static T? TryParseEnum<T>(this string source)
             where T : struct
         {

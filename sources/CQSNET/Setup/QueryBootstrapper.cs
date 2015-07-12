@@ -10,6 +10,10 @@ namespace CQSNET.Setup
     {
         private readonly Action<Type, Type> _registerContainerElement;
 
+        /// <summary>
+        /// Constructs query bootstrapper
+        /// </summary>
+        /// <param name="registerContainerElement">Callback to register in container</param>
         public QueryBootstrapper(Action<Type, Type> registerContainerElement)
         {
             if (registerContainerElement == null)

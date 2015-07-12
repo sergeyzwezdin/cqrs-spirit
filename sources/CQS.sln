@@ -1,13 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQSNET", "CQSNET\CQSNET.csproj", "{60766446-F3AE-4DF4-AF32-88DF635D0352}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQSNET.Tests", "CQSNET.Tests\CQSNET.Tests.csproj", "{C118E77A-884F-4710-ABCD-2191AB1915A2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQSNET.EntityFramework", "CQSNET.EntityFramework\CQSNET.EntityFramework.csproj", "{C70C2B2B-D5DE-4FA4-AF6D-2229F293CFD6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{C733970F-435E-4B91-99DE-919479EE6164}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\build.cmd = ..\build\build.cmd
+		..\build\build.ps1 = ..\build\build.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "description", "description", "{82BF8812-38A9-4FC0-8534-356A66705857}"
+	ProjectSection(SolutionItems) = preProject
+		..\LICENSE = ..\LICENSE
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "utils", "utils", "{0C1DDA2C-2E32-43FA-9697-9AA7F883E919}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\utils\msbuild.ps1 = ..\build\utils\msbuild.ps1
+		..\build\utils\version.ps1 = ..\build\utils\version.ps1
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +48,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0C1DDA2C-2E32-43FA-9697-9AA7F883E919} = {C733970F-435E-4B91-99DE-919479EE6164}
 	EndGlobalSection
 EndGlobal

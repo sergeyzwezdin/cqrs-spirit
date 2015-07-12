@@ -6,19 +6,33 @@ using System.Reflection;
 
 namespace CQSNET.Exceptions
 {
+    /// <summary>
+    /// Domain exception
+    /// </summary>
     public abstract class DomainException : Exception
     {
+        /// <summary>
+        /// Exception reason
+        /// </summary>
         public abstract string ReasonName
         {
             get;
         }
     }
 
+    /// <summary>
+    /// Domain exception
+    /// </summary>
+    /// <typeparam name="TReason">Reason type</typeparam>
     public class DomainException<TReason> : DomainException
         where TReason : struct, IConvertible
     {
         private readonly TReason _reason;
 
+        /// <summary>
+        /// Constructs domain exception with some reason
+        /// </summary>
+        /// <param name="reason"></param>
         public DomainException(TReason reason)
         {
             if (typeof(TReason).IsEnum == false)
@@ -27,11 +41,17 @@ namespace CQSNET.Exceptions
             _reason = reason;
         }
 
+        /// <summary>
+        /// Exception reason
+        /// </summary>
         public TReason Reason
         {
             get { return _reason; }
         }
 
+        /// <summary>
+        /// Exception reason
+        /// </summary>
         public override string ReasonName
         {
             get
@@ -40,6 +60,9 @@ namespace CQSNET.Exceptions
             }
         }
 
+        /// <summary>
+        /// Exception message
+        /// </summary>
         public override string Message
         {
             get
@@ -48,6 +71,10 @@ namespace CQSNET.Exceptions
             }
         }
 
+        /// <summary>
+        /// Text representation of exception
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             if (String.IsNullOrWhiteSpace(_reason.ToString(CultureInfo.InvariantCulture)) == false)

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace CQSNET.Infrastructure
 {
+#pragma warning disable 1591
     public class CommandsRunner : ICommandsRunner
     {
         private readonly Func<Type, IEnumerable<object>> _resolveCallback;
@@ -107,4 +108,5 @@ namespace CQSNET.Infrastructure
                 throw new ArgumentException("Unknown command \"" + typeof(T).FullName + "\"");
         }
     }
+#pragma warning restore 1591
 }

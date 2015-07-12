@@ -2,6 +2,7 @@
 
 namespace CQSNET.Infrastructure
 {
+#pragma warning disable 1591
     public class WorkflowLocator : IWorkflowLocator
     {
         private readonly Func<Type, object> _resolveCallback;
@@ -17,4 +18,5 @@ namespace CQSNET.Infrastructure
             return _resolveCallback(typeof(T)) as T;
         }
     }
+#pragma warning restore 1591
 }

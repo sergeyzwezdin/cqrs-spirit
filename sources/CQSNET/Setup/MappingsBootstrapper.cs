@@ -12,6 +12,10 @@ namespace CQSNET.Setup
     {
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Constructs mapper bootstrapper
+        /// </summary>
+        /// <param name="mapper">Mapper</param>
         public MappingsBootstrapper(IMapper mapper)
         {
             if (mapper == null)

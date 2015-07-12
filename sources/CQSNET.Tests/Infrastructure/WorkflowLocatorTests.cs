@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace CQSNET.Tests.Infrastructure
 {
     [TestClass]
+#pragma warning disable 1591
     public class WorkflowLocatorTests
     {
         [TestMethod]
@@ -29,4 +30,5 @@ namespace CQSNET.Tests.Infrastructure
         {
         }
     }
+#pragma warning restore 1591
 }

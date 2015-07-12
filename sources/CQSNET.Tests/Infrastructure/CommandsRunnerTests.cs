@@ -5,6 +5,7 @@ using Moq;
 namespace CQSNET.Tests.Infrastructure
 {
     [TestClass]
+#pragma warning disable 1591
     public class CommandsRunnerTests
     {
         [TestMethod]
@@ -84,4 +85,5 @@ namespace CQSNET.Tests.Infrastructure
         {
         }
     }
+#pragma warning restore 1591
 }
