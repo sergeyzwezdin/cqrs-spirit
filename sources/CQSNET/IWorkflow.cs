@@ -1,6 +1,6 @@
 ﻿namespace CQSNET
 {
-	public interface IWorkflow
-	{
-	}
+    public interface IWorkflow
+    {
+    }
 }

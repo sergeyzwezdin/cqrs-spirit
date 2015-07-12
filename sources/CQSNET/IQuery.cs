@@ -1,6 +1,6 @@
 ﻿namespace CQSNET
 {
-	public interface IQuery
-	{
-	}
+    public interface IQuery
+    {
+    }
 }

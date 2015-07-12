@@ -2,14 +2,14 @@
 
 namespace CQSNET.EntityFramework
 {
-	public abstract class EFQueryBase<TContext> : IQuery
-		where TContext : DbContext
-	{
-		protected readonly TContext DbContext;
+    public abstract class EFQueryBase<TContext> : IQuery
+        where TContext : DbContext
+    {
+        protected readonly TContext DbContext;
 
-		protected EFQueryBase(TContext dbContext)
-		{
-			DbContext = dbContext;
-		}
-	}
+        protected EFQueryBase(TContext dbContext)
+        {
+            DbContext = dbContext;
+        }
+    }
 }

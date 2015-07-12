@@ -1,6 +1,6 @@
 ﻿namespace CQSNET
 {
-	public interface ICommand
-	{
-	}
+    public interface ICommand
+    {
+    }
 }

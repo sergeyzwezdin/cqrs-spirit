@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ICommandAsyncHandler.cs" />
     <Compile Include="Infrastructure\CommandsRunner.cs" />
     <Compile Include="Exceptions\DomainException.cs" />
     <Compile Include="ICommand.cs" />
@@ -50,6 +51,8 @@
     <Compile Include="IQueryLocator.cs" />
     <Compile Include="IWorkflow.cs" />
     <Compile Include="IWorkflowLocator.cs" />
+    <Compile Include="Objects\ObjectCommandHandlerBase.cs" />
+    <Compile Include="Objects\ObjectQueryBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Infrastructure\QueryLocator.cs" />
     <Compile Include="Infrastructure\WorkflowLocator.cs" />
