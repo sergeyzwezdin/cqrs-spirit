@@ -46,6 +46,10 @@ Task("Update-Version")
     .IsDependentOn("Prepare-Artifacts")
     .Does(() =>
 {
+    Information("APPVEYOR_REPO_TAG: {0}", EnvironmentVariable("APPVEYOR_REPO_TAG"));
+    Information("APPVEYOR_BUILD_VERSION: {0}", EnvironmentVariable("APPVEYOR_BUILD_VERSION"));
+    Information("APPVEYOR_BUILD_NUMBER: {0}", EnvironmentVariable("APPVEYOR_BUILD_NUMBER"));
+
     var match = System.Text.RegularExpressions.Regex.Match(buildTag, @"\d+\.\d+\.\d+");
     var version = match.Success ? match.Value : "1.0.0";
 
