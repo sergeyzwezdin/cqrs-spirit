@@ -17,7 +17,7 @@ var paths = new
     }
 };
 
-var buildTag = Argument("buildtag", EnvironmentVariable("APPVEYOR_REPO_TAG") ?? EnvironmentVariable("APPVEYOR_BUILD_VERSION") ?? "1.0.0");
+var buildVersion = Argument("buildtag", EnvironmentVariable("APPVEYOR_BUILD_VERSION") ?? "1.0.0");
 var buildNumber = Argument("buildnumber", EnvironmentVariable("APPVEYOR_BUILD_NUMBER") ?? "0");
 var isRelease = string.IsNullOrWhiteSpace(EnvironmentVariable("APPVEYOR_REPO_TAG")) == false;
 
@@ -50,7 +50,7 @@ Task("Update-Version")
     Information("APPVEYOR_BUILD_VERSION: {0}", EnvironmentVariable("APPVEYOR_BUILD_VERSION"));
     Information("APPVEYOR_BUILD_NUMBER: {0}", EnvironmentVariable("APPVEYOR_BUILD_NUMBER"));
 
-    var match = System.Text.RegularExpressions.Regex.Match(buildTag, @"\d+\.\d+\.\d+");
+    var match = System.Text.RegularExpressions.Regex.Match(buildVersion, @"\d+\.\d+\.\d+");
     var version = match.Success ? match.Value : "1.0.0";
 
     var projectVersion = isRelease ? String.Format("{0}.{1}", version, buildNumber) : String.Format("{0}-dev{1}", version, buildNumber);
