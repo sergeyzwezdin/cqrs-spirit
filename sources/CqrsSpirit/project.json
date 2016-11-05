@@ -1,0 +1,40 @@
+{
+  "version": "2.0.0",
+  "title": "CQRS Spirit",
+  "description": "Lightweight library to implement CQRS principle with .NET Core applications.",
+  "authors": [
+    "Sergey Zwezdin"
+  ],
+  "dependencies": {
+    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
+    "Microsoft.Extensions.DependencyModel": "1.0.0",
+    "Microsoft.Extensions.Logging.Abstractions": "1.0.0",
+    "NETStandard.Library": "1.6.0",
+    "System.ComponentModel": "4.0.1",
+    "System.ComponentModel.Primitives": "4.1.0"
+  },
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "dnxcore50"
+    }
+  },
+  "packOptions": {
+    "summary": "Lightweight library to implement CQRS pattern with .NET Core applications.",
+    "tags": [
+      "cqrs",
+      "cqs",
+      "data",
+      "command",
+      "query"
+    ],
+    "owners": [
+      "Sergey Zwezdin"
+    ],
+    "projectUrl": "https://github.com/sergeyzwezdin/cqrs-spirit",
+    "licenseUrl": "https://github.com/sergeyzwezdin/cqrs-spirit/blob/master/LICENSE",
+    "requireLicenseAcceptance": false,
+    "repository": {
+      "url": "https://github.com/sergeyzwezdin/cqrs-spirit"
+    }
+  }
+}

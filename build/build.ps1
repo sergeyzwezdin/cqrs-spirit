@@ -1,130 +1,189 @@
-Properties {
+##########################################################################
+# This is the Cake bootstrapper script for PowerShell.
+# This file was downloaded from https://github.com/cake-build/resources
+# Feel free to change this file to fit your needs.
+##########################################################################
 
-	$configuration = if ($env:CONFIGURATION) { $env:CONFIGURATION } else { "Release" };
-	$platform = if ($env:PLATFORM) { $env:PLATFORM } else { "AnyCPU" };
-	$verbosity = if ($env:VERBOSITY) { $env:VERBOSITY } else { "minimal" };
+<#
 
-	# Paths
-	$base_path = Resolve-Path ..;
+.SYNOPSIS
+This is a Powershell script to bootstrap a Cake build.
 
-	$build_path = "$base_path\build";
-	$sources_path = "$base_path\sources"
-	$version_file_path = "$sources_path\CQSNET\Properties\AssemblyInfo.cs";
-	$nuspec_path = "$base_path\nuspecs"
+.DESCRIPTION
+This Powershell script will download NuGet if missing, restore NuGet tools (including Cake)
+and execute your Cake build script with the parameters you provide.
 
-	$artifacts_path = "$base_path\artifacts";
-	$artifacts_sources_path = "$base_path\artifacts\sources";
-	$artifacts_bin_path = "$base_path\artifacts\bin";
-	$artifacts_nuget_path = "$base_path\artifacts\nuget";
+.PARAMETER Script
+The build script to execute.
+.PARAMETER Target
+The build script target to run.
+.PARAMETER Configuration
+The build configuration to use.
+.PARAMETER Verbosity
+Specifies the amount of information to be displayed.
+.PARAMETER Experimental
+Tells Cake to use the latest Roslyn release.
+.PARAMETER WhatIf
+Performs a dry run of the build script.
+No tasks will be executed.
+.PARAMETER Mono
+Tells Cake to use the Mono scripting engine.
+.PARAMETER SkipToolPackageRestore
+Skips restoring of packages.
+.PARAMETER ScriptArgs
+Remaining arguments are added here.
 
-	$nuget_exe_path = "$build_path\.nuget\nuget.exe";
+.LINK
+http://cakebuild.net
 
-	# Version
-	# Version gathered from Github tag (if it's presented); otherwise it reads from AssemblyInfo.cs file.
-	# Assembly version populated into $assemblyVersion property (looks as 1.0.0.1)
-	# Package version populated into $packageVersion (looks as 1.0.0-dev1)
+#>
 
-	# AppVeyor
-	$appVeyor = $env:APPVEYOR;
-	$buildNumber = $env:APPVEYOR_BUILD_NUMBER;
-	$buildTag = $env:APPVEYOR_REPO_TAG;
+[CmdletBinding()]
+Param(
+    [string]$Script = "build.cake",
+    [string]$Target = "Default",
+    [ValidateSet("Release", "Debug")]
+    [string]$Configuration = "Release",
+    [ValidateSet("Quiet", "Minimal", "Normal", "Verbose", "Diagnostic")]
+    [string]$Verbosity = "Verbose",
+    [switch]$Experimental,
+    [Alias("DryRun","Noop")]
+    [switch]$WhatIf,
+    [switch]$Mono,
+    [switch]$SkipToolPackageRestore,
+    [Parameter(Position=0,Mandatory=$false,ValueFromRemainingArguments=$true)]
+    [string[]]$ScriptArgs
+)
 
+[Reflection.Assembly]::LoadWithPartialName("System.Security") | Out-Null
+function MD5HashFile([string] $filePath)
+{
+    if ([string]::IsNullOrEmpty($filePath) -or !(Test-Path $filePath -PathType Leaf))
+    {
+        return $null
+    }
+
+    [System.IO.Stream] $file = $null;
+    [System.Security.Cryptography.MD5] $md5 = $null;
+    try
+    {
+        $md5 = [System.Security.Cryptography.MD5]::Create()
+        $file = [System.IO.File]::OpenRead($filePath)
+        return [System.BitConverter]::ToString($md5.ComputeHash($file))
+    }
+    finally
+    {
+        if ($file -ne $null)
+        {
+            $file.Dispose()
+        }
+    }
 }
 
-## Utils
+Write-Host "Preparing to run build script..."
 
-Include "utils\version.ps1";
-Include "utils\msbuild.ps1";
-
-## Configuration initialization
-
-Task ValidateConfig -description "Validates configuration" {
-
-	assert('Debug', 'Release' -contains $configuration) "Invalid configuration: $configuration; The variable should contain Debug or Release.";
-	assert('AnyCPU' -contains $platform) "Invalid platform: $platform; The variable should contain AnyCPU.";
-	assert('quiet', 'minimal', 'normal', 'detailed', 'diagnostic', 'q', 'm', 'n', 'd', 'diag' -contains $verbosity) "Invalid verbosity: $verbosity; The variable should contain quiet, minimal, normal, detailed or diagnostic.";
-	assert(Test-Path $nuget_exe_path) "Invalid nuget_exe_path: $nuget_exe_path; Nuget file should exists.";
-
+if(!$PSScriptRoot){
+    $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent
 }
 
-Task GetProjectVersion -description "Initializes version variables to use it during build process" {
+$TOOLS_DIR = Join-Path $PSScriptRoot "tools"
+$NUGET_EXE = Join-Path $TOOLS_DIR "nuget.exe"
+$CAKE_EXE = Join-Path $TOOLS_DIR "Cake/Cake.exe"
+$NUGET_URL = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
+$PACKAGES_CONFIG = Join-Path $TOOLS_DIR "packages.config"
+$PACKAGES_CONFIG_MD5 = Join-Path $TOOLS_DIR "packages.config.md5sum"
 
-	$script:assemblyVersion = Get-AssemblyVersion $version_file_path $buildTag $buildNumber;
-	$script:packageVersion = Get-PackageVersion $version_file_path $buildTag $buildNumber;
-
-	Write-Host ("Assembly version: $assemblyVersion") -ForegroundColor White;
-	Write-Host ("Package version:  $packageVersion") -ForegroundColor White;
-
+# Should we use mono?
+$UseMono = "";
+if($Mono.IsPresent) {
+    Write-Verbose -Message "Using the Mono based scripting engine."
+    $UseMono = "-mono"
 }
 
-Task InitConfiguration -depends ValidateConfig, GetProjectVersion -description "Validates and initializes all configuration variables required for further build process"
-
-## Sources preparation
-
-Task CreateOutputDirs -depends InitConfiguration -description "Creates all necessary folders in ""Artifacts"" folder" {
-
-	if (Test-Path $artifacts_path) {
-		Remove-Item -Recurse -Force $artifacts_path;
-	}
-
-	New-Item $artifacts_path -Type Directory;
-	New-Item $artifacts_sources_path -Type Directory;
-	New-Item $artifacts_bin_path -Type Directory;
-	New-Item $artifacts_nuget_path -Type Directory;
-
+# Should we use the new Roslyn?
+$UseExperimental = "";
+if($Experimental.IsPresent -and !($Mono.IsPresent)) {
+    Write-Verbose -Message "Using experimental version of Roslyn."
+    $UseExperimental = "-experimental"
 }
 
-Task PopulateOutputSourcesFolder -depends InitConfiguration, CreateOutputDirs -description "Copy sources folder into ""Artifacts"" folder" {
-
-	Copy-Item "$sources_path\*" $artifacts_sources_path -Recurse;
-	Copy-Item "$nuspec_path\*" $artifacts_nuget_path -Recurse;
-
+# Is this a dry run?
+$UseDryRun = "";
+if($WhatIf.IsPresent) {
+    $UseDryRun = "-dryrun"
 }
 
-Task UpdateSourcesVersion -depends InitConfiguration, PopulateOutputSourcesFolder -description "Updates version at both AssemblyInfo.cs and and .nuspec" {
-
-	Get-ChildItem $artifacts_sources_path -Recurse -Filter "AssemblyInfo.cs" | foreach { $_.FullName } | Replace-Version -version $assemblyVersion;
-	Get-ChildItem $artifacts_nuget_path -Recurse -Filter "*.nuspec" | foreach { $_.FullName } | Replace-Version -version $packageVersion;
-
+# Make sure tools folder exists
+if ((Test-Path $PSScriptRoot) -and !(Test-Path $TOOLS_DIR)) {
+    Write-Verbose -Message "Creating tools directory..."
+    New-Item -Path $TOOLS_DIR -Type directory | out-null
 }
 
-Task PrepareSources -depends InitConfiguration, CreateOutputDirs, PopulateOutputSourcesFolder, UpdateSourcesVersion -description "Prepares sources ready for further build"
-
-## Build
-
-Task Clean -depends PrepareSources -description "Cleanup project source files" {
-
-	Get-ChildItem $artifacts_sources_path -Recurse -Filter "*.csproj" |  Clean-Project -config $config -platform $platform -verbosity $verbosity;
-
+# Make sure that packages.config exist.
+if (!(Test-Path $PACKAGES_CONFIG)) {
+    Write-Verbose -Message "Downloading packages.config..."
+    try { (New-Object System.Net.WebClient).DownloadFile("http://cakebuild.net/download/bootstrapper/packages", $PACKAGES_CONFIG) } catch {
+        Throw "Could not download packages.config."
+    }
 }
 
-Task BuildProjects -depends PrepareSources, Clean -description "Build project files and populates bin folder with all required binarines" {
-
-	Get-ChildItem $artifacts_sources_path -Recurse -Filter "*.csproj" | Build-Project -config $config -platform $platform -outputPath $artifacts_bin_path -verbosity $verbosity;
-
+# Try find NuGet.exe in path if not exists
+if (!(Test-Path $NUGET_EXE)) {
+    Write-Verbose -Message "Trying to find nuget.exe in PATH..."
+    $existingPaths = $Env:Path -Split ';' | Where-Object { (![string]::IsNullOrEmpty($_)) -and (Test-Path $_) }
+    $NUGET_EXE_IN_PATH = Get-ChildItem -Path $existingPaths -Filter "nuget.exe" | Select -First 1
+    if ($NUGET_EXE_IN_PATH -ne $null -and (Test-Path $NUGET_EXE_IN_PATH.FullName)) {
+        Write-Verbose -Message "Found in PATH at $($NUGET_EXE_IN_PATH.FullName)."
+        $NUGET_EXE = $NUGET_EXE_IN_PATH.FullName
+    }
 }
 
-Task BuildNugetPackages -depends BuildProjects -description "Build nuget packages" {
-
-	if (!(Test-Path "$artifacts_nuget_path\Net45\")) {
-		New-Item "$artifacts_nuget_path\Net45\" -Type Directory;
-	}
-
-	Copy-Item "$artifacts_bin_path\*" "$artifacts_nuget_path\Net45\" -Recurse;
-
-
-	$nuspecs = Get-ChildItem $artifacts_nuget_path -Filter "*.nuspec";
-
-	foreach ($nuspec in $nuspecs) {
-		exec {
-			.$nuget_exe_path pack $nuspec.FullName -OutputDirectory "$artifacts_nuget_path" -BasePath "$artifacts_nuget_path"
-		}
-	}
-
+# Try download NuGet.exe if not exists
+if (!(Test-Path $NUGET_EXE)) {
+    Write-Verbose -Message "Downloading NuGet.exe..."
+    try {
+        (New-Object System.Net.WebClient).DownloadFile($NUGET_URL, $NUGET_EXE)
+    } catch {
+        Throw "Could not download NuGet.exe."
+    }
 }
 
-Task Build -depends PrepareSources, Clean, BuildProjects, BuildNugetPackages -description "Build sources and creating nuget packages"
+# Save nuget.exe path to environment to be available to child processed
+$ENV:NUGET_EXE = $NUGET_EXE
 
-## Default
+# Restore tools from NuGet?
+if(-Not $SkipToolPackageRestore.IsPresent) {
+    Push-Location
+    Set-Location $TOOLS_DIR
 
-Task Default -depends InitConfiguration, PrepareSources, Build;
+    # Check for changes in packages.config and remove installed tools if true.
+    [string] $md5Hash = MD5HashFile($PACKAGES_CONFIG)
+    if((!(Test-Path $PACKAGES_CONFIG_MD5)) -Or
+      ($md5Hash -ne (Get-Content $PACKAGES_CONFIG_MD5 ))) {
+        Write-Verbose -Message "Missing or changed package.config hash..."
+        Remove-Item * -Recurse -Exclude packages.config,nuget.exe
+    }
+
+    Write-Verbose -Message "Restoring tools from NuGet..."
+    $NuGetOutput = Invoke-Expression "&`"$NUGET_EXE`" install -ExcludeVersion -OutputDirectory `"$TOOLS_DIR`""
+
+    if ($LASTEXITCODE -ne 0) {
+        Throw "An error occured while restoring NuGet tools."
+    }
+    else
+    {
+        $md5Hash | Out-File $PACKAGES_CONFIG_MD5 -Encoding "ASCII"
+    }
+    Write-Verbose -Message ($NuGetOutput | out-string)
+    Pop-Location
+}
+
+# Make sure that Cake has been installed.
+if (!(Test-Path $CAKE_EXE)) {
+    Throw "Could not find Cake.exe at $CAKE_EXE"
+}
+
+# Start Cake
+Write-Host "Running build script..."
+Invoke-Expression "& `"$CAKE_EXE`" `"$Script`" -target=`"$Target`" -configuration=`"$Configuration`" -verbosity=`"$Verbosity`" $UseMono $UseDryRun $UseExperimental $ScriptArgs"
+exit $LASTEXITCODE
